@@ -1,25 +1,26 @@
 name: "Vprofile IAC"
-On:
+
+on:
   push:
     branches:
-      -main
-      -stage
+      - main         # FIX: added space after "-"
+      - stage
     paths:
       - terraform/**
   pull_request:
     branches:
-      -main
+      - main         # FIX: added space after "-"
     paths:
       - terraform/**
 
 env:
-# Credentials for deployment to AWS
- AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
- AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
- # S3 bucket for the Terraform state
- BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
- AWS_REGION: us-east-2
- EKS_CLUSTER: vprofile-eks
+  # Credentials for deployment to AWS
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  # S3 bucket for the Terraform state
+  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE }}
+  AWS_REGION: us-east-2
+  EKS_CLUSTER: vprofile-eks
 
 jobs:
   terraform:
@@ -31,12 +32,12 @@ jobs:
         working-directory: ./terraform
 
     steps:
-      - name: Checkout sorce code
+      - name: Checkout source code                     # FIX: Typo "sorce"
         uses: actions/checkout@v2
 
-      - name: Setup Terraform with specified version on the runner
-        uses: hashicorp/setup-terraform@v2      
-        
+      - name: Setup Terraform with specified version
+        uses: hashicorp/setup-terraform@v2             # Optional: can specify version
+
       - name: Terraform init
         id: init
         run: terraform init -backend-config="bucket=$BUCKET_TF_STATE"
@@ -45,15 +46,15 @@ jobs:
         id: fmt
         run: terraform fmt -check
 
-      - mname: Terraform validate
+      - name: Terraform validate                       # FIX: was "mname"
         id: validate
         run: terraform validate
 
       - name: Terraform plan
         id: plan
-        run: terraform plan -no-color -input=false -out planfile             
+        run: terraform plan -no-color -input=false -out planfile
         continue-on-error: true
 
       - name: Terraform plan status
         if: steps.plan.outcome == 'failure'
-        run: exit 1  
+        run: exit 1
